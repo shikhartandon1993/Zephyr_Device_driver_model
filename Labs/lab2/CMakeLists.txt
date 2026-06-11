@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.20.0)
+
+message(STATUS "DEBUG: CMAKE_SOURCE_DIR is: ${CMAKE_SOURCE_DIR}")
+set(ZEPHYR_EXTRA_MODULES "${CMAKE_SOURCE_DIR}/../../modules/led")
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+
+project(my_led)
+
+target_sources(app PRIVATE src/main.c)

@@ -1,0 +1,50 @@
+
+/ {
+    aliases {
+      sercom3 = &sercom3;
+    };
+};
+
+/* Configure SERCOM3 I2C pins (matches your working app) */
+&pinctrl {
+  sercom3_i2c_default: sercom3_i2c_default {
+    group1 {
+      pinmux = <PA22C_SERCOM3_PAD0>, /* SDA */
+              <PA23C_SERCOM3_PAD1>; /* SCL */
+    };
+  };
+};
+
+/* Enable SERCOM3 as I2C (matches your working app) */
+&sercom3 {
+  status = "okay";
+  compatible = "atmel,sam0-i2c";
+  clock-frequency = <I2C_BITRATE_FAST>;
+  #address-cells = <1>;
+  #size-cells = <0>;
+  pinctrl-0 = <&sercom3_i2c_default>;
+  pinctrl-names = "default";
+
+  /* Use YOUR custom temp driver here (replaces at30tse75x@4F) */
+  mytemp0: mytemp@4f {
+    compatible = "mycompany,my-temp-sensor";
+    reg = <0x4f>; 
+    temp-reg = <0>; /* Temperature Register address is 0x0 in AT30TSE758*/
+    resolution-bits = <9>;
+    status = "okay";
+  };
+};
+
+
+/* Root nodes */
+ / {
+  /* Demo HTTP “driver” instance, linked to the temp sensor via phandle */
+  my_http0: my_http0 {
+    compatible = "mycompany,my-http-temp";
+    status = "okay";
+    port = <8080>;
+    concurrent = <1>;
+    backlog = <10>;
+    temp-sensor = <&mytemp0>;
+  };
+};

@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: Apache-2.0
+
+#-A title: MyVendor Memory-Mapped LED Controller
+
+description: |
+  Custom LED device driven by a memory-mapped PORT block (PORTA–D).
+  The peripheral is accessed using a base address and port/pin selection.
+
+compatible: "myvendor,mygpio-led"
+
+include: base.yaml
+#include: gpio-leds.yaml
+
+properties:
+  reg:
+    type: array
+    required: true
+    description: |
+      Base address and size of the PORT register block.
+      (e.g., 0x41008000 0x2000 covers PORTA–PORTD on SAME54)
+
+  port:
+    type: int
+    required: true
+    description: |
+      GPIO port index:
+        0 = PORTA
+        1 = PORTB
+        2 = PORTC
+        3 = PORTD
+
+  pin:
+    type: int
+    required: true
+    description: |
+      GPIO pin number within the selected port (0–31)
+
+  status:
+    type: string
+    required: false
+    enum: ["okay", "disabled", "reserved", "fail", "fail-sss"]

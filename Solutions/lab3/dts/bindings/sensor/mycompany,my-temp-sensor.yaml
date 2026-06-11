@@ -1,0 +1,18 @@
+description: Demo I2C temperature sensor driver for training
+compatible: "mycompany,my-temp-sensor"
+
+include: [i2c-device.yaml]
+
+properties:
+  reg:
+    required: true
+
+  temp-reg:
+    type: int
+    default: 0
+    description: Temperature register address to read (demo)
+
+  resolution-bits:
+    type: int
+    default: 12
+    description: Resolution in bits (demo; driver assumes 12-bit style Q4 format)

@@ -1,0 +1,4 @@
+west:
+  command: C:\Users\C77447\zephyrproject\.venv\Scripts\west build -t menuconfig
+  topdir: C:\Users\C77447\zephyrproject
+  version: 1.5.0

@@ -1,0 +1,12 @@
+name: led
+build:
+  # "." means "the directory(modules/led) that contains zephyr/module.yaml has the CMakeLists.txt file" (the module root).
+  cmake: .
+  # a file named "Kconfig" at the module root.
+  kconfig: Kconfig
+  settings:
+    # "." means Zephyr will treat the module root as a DT root and look under it for:
+    #   dts/bindings/**  (binding YAML files)
+    #   dts/bindings/vendor-prefixes.txt
+    # and other DT-related content.
+    dts_root: .
