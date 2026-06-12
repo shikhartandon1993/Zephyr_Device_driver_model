@@ -108,7 +108,7 @@ static bool wants_plain(const struct http_client_ctx *client)
  * fixed HTML page (when browser loads /temp)
  * then temperature value in plain text (when JS fetch asks for Accept: text/plain) every 1 second
  */
-static int temp_handler(struct http_client_ctx *client, enum http_transaction_status status,
+static int temp_handler(struct http_client_ctx *client, enum http_data_status status,
    const struct http_request_ctx *request_ctx,
    struct http_response_ctx *response_ctx, void *user_data)
 {
@@ -125,7 +125,7 @@ static int temp_handler(struct http_client_ctx *client, enum http_transaction_st
   return 0;
  }
  else{
-  if (status == HTTP_SERVER_REQUEST_DATA_FINAL) {
+  if (status == HTTP_SERVER_DATA_FINAL) {
   int ret = i2c_write_read_dt(&(my_i2c_device_config_var.i2c_dev),&(my_i2c_device_config_var.temp_reg),sizeof(my_i2c_device_config_var.temp_reg),buf,sizeof(buf)/sizeof(buf[0]));
   if (ret) {
    static const char err[] = "temp read error\n";
@@ -208,12 +208,26 @@ int main(void)
 //Sub-Step 1(lab 3)
 /*Bring ethernet interface up*/
 struct net_if *eth_interface = net_if_get_default();
-if(eth_interface == NULL)
-{
-  LOG_ERR("Failed to bring up ethernet interface");
+
+if (eth_interface == NULL) {
+    LOG_ERR("No default network interface found");
+    return -ENODEV;
 }
-else{
-  LOG_INF("Ethernet interface is up");
+
+LOG_INF("Default Ethernet interface found");
+
+/* Check if cable is connected */
+if (net_if_is_carrier_ok(eth_interface)) {
+    LOG_INF("Ethernet carrier/link is detected");
+} else {
+    LOG_WRN("Ethernet carrier/link is NOT detected; cable may be unplugged");
+}
+
+/* Check if cable is connected */
+if (net_if_is_carrier_ok(eth_interface)) {
+    LOG_INF("Ethernet carrier/link is detected");
+} else {
+    LOG_WRN("Ethernet carrier/link is NOT detected; cable may be unplugged");
 }
 
 //Sub-Step 2(lab 3)
