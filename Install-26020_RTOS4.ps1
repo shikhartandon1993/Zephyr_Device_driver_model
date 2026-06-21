@@ -9,8 +9,10 @@ Do not run this PowerShell script directly.
 
 This script performs the following actions:
 
-1. Copies the full installer package to:
+1. Copies the installer package to:
       C:\Backup\26020_RTOS4
+
+   Installer script files are excluded from this backup copy.
 
 2. Explicitly copies the Solutions folder to:
       C:\Backup\26020_RTOS4\Solutions
@@ -40,13 +42,16 @@ This script performs the following actions:
 7. Downloads Zephyr source code version v4.3.0 into:
       C:\Masters\26020_RTOS4\zephyrproject
 
-8. Copies labs into:
+8. Copies lab0, lab1, lab2, and lab3 from the Labs folder into:
       C:\Masters\26020_RTOS4\zephyrproject\apps
 
-9. Copies the led module into:
+9. Copies the led folder from the Labs folder into:
       C:\Masters\26020_RTOS4\zephyrproject\modules\led
 
-10. Verifies that Zephyr source is v4.3.0.
+10. Copies .vscode\launch.json into:
+      C:\Masters\26020_RTOS4\zephyrproject\.vscode\launch.json
+
+11. Verifies that Zephyr source is v4.3.0.
 
 Logging:
 - The .bat file creates the batch launcher log.
@@ -58,6 +63,7 @@ IMPORTANT:
 - This script does not install the Zephyr SDK.
 - This script does not install OpenOCD.
 - The Solutions folder is copied only to C:\Backup\26020_RTOS4\Solutions.
+- The installer .bat and PowerShell script are not copied into the backup folder or the C:\Masters\26020_RTOS4 class folder.
 ===============================================================================
 #>
 
@@ -127,6 +133,14 @@ $ExpectedOpenOCDVersion = "0.12.0"
 $ExpectedSDKVersion     = "0.17.4"
 
 $LogRoot = Join-Path $ClassRoot "install_logs"
+
+# These launcher/installer files must not be copied into the backup package
+# or into the final C:\Masters\26020_RTOS4 class folder.
+$InstallerFilesToExclude = @(
+    "26020_RTOS4_Installer.bat",
+    "Install-26020_RTOS4.ps1",
+    "Install-26020_RTOS4_fixed.ps1"
+)
 
 # -----------------------------------------------------------------------------
 # Script-level state
@@ -314,7 +328,9 @@ function Copy-WithRobocopy {
         [string]$Source,
 
         [Parameter(Mandatory = $true)]
-        [string]$Destination
+        [string]$Destination,
+
+        [string[]]$ExcludeFiles = @()
     )
 
     if (!(Test-Path $Source)) {
@@ -328,7 +344,24 @@ function Copy-WithRobocopy {
 
     Write-Info "Copying from '$Source' to '$Destination'"
 
-    robocopy $Source $Destination /E /R:3 /W:5 /NFL /NDL /NP
+    $robocopyArgs = @(
+        $Source,
+        $Destination,
+        "/E",
+        "/R:3",
+        "/W:5",
+        "/NFL",
+        "/NDL",
+        "/NP"
+    )
+
+    if ($ExcludeFiles.Count -gt 0) {
+        Write-Info "Excluding file name(s): $($ExcludeFiles -join ', ')"
+        $robocopyArgs += "/XF"
+        $robocopyArgs += $ExcludeFiles
+    }
+
+    & robocopy @robocopyArgs
 
     $rc = $LASTEXITCODE
 
@@ -341,6 +374,26 @@ function Copy-WithRobocopy {
     }
 }
 
+function Remove-InstallerFilesFromPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Root
+    )
+
+    if (!(Test-Path $Root)) {
+        return
+    }
+
+    foreach ($fileName in $InstallerFilesToExclude) {
+        $matches = Get-ChildItem -Path $Root -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue
+
+        foreach ($match in $matches) {
+            Write-Info "Removing installer file from destination: $($match.FullName)"
+            Remove-Item $match.FullName -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
 function Find-SourceFolder {
     param(
         [Parameter(Mandatory = $true)]
@@ -348,6 +401,8 @@ function Find-SourceFolder {
     )
 
     $candidates = @(
+        (Join-Path $SourceRoot "Labs\$FolderName"),
+        (Join-Path $SourceRoot "ClassMaterial\Labs\$FolderName"),
         (Join-Path $SourceRoot $FolderName),
         (Join-Path $SourceRoot "ClassMaterial\$FolderName"),
         (Join-Path $SourceRoot "ClassMaterial\apps\$FolderName"),
@@ -356,6 +411,23 @@ function Find-SourceFolder {
 
     foreach ($candidate in $candidates) {
         if (Test-Path $candidate) {
+            return $candidate
+        }
+    }
+
+    return $null
+}
+
+function Find-SourceFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$RelativePaths
+    )
+
+    foreach ($relativePath in $RelativePaths) {
+        $candidate = Join-Path $SourceRoot $relativePath
+
+        if (Test-Path -Path $candidate -PathType Leaf) {
             return $candidate
         }
     }
@@ -733,9 +805,10 @@ try {
     # Copy full installer package to C:\Backup
     # -------------------------------------------------------------------------
 
-    Write-Section "Copying full installer package to C:\Backup"
+    Write-Section "Copying installer package to C:\Backup without installer scripts"
 
-    Copy-WithRobocopy -Source $SourceRoot -Destination $BackupRoot
+    Copy-WithRobocopy -Source $SourceRoot -Destination $BackupRoot -ExcludeFiles $InstallerFilesToExclude
+    Remove-InstallerFilesFromPath -Root $BackupRoot
 
     # -------------------------------------------------------------------------
     # Explicitly copy Solutions folder to C:\Backup\26020_RTOS4\Solutions
@@ -756,22 +829,23 @@ try {
         Remove-Item $SolutionsDestination -Recurse -Force
     }
 
-    Copy-WithRobocopy -Source $SolutionsSource -Destination $SolutionsDestination
+    Copy-WithRobocopy -Source $SolutionsSource -Destination $SolutionsDestination -ExcludeFiles $InstallerFilesToExclude
+    Remove-InstallerFilesFromPath -Root $BackupRoot
 
     Write-Info "Solutions folder copied successfully."
     Write-Info "Solutions source     : $SolutionsSource"
     Write-Info "Solutions destination: $SolutionsDestination"
 
     # -------------------------------------------------------------------------
-    # Copy README and installer files to C:\Masters
+    # Copy README to C:\Masters. Do not copy installer scripts here.
     # -------------------------------------------------------------------------
 
-    Write-Section "Copying README and installer files to C:\Masters"
+    Write-Section "Copying README to C:\Masters without installer scripts"
+
+    Remove-InstallerFilesFromPath -Root $ClassRoot
 
     $filesToCopy = @(
-        "README.txt",
-        "26020_RTOS4_Installer.bat",
-        "Install-26020_RTOS4.ps1"
+        "README.txt"
     )
 
     foreach ($file in $filesToCopy) {
@@ -785,6 +859,8 @@ try {
             Write-Warn "$file was not found in source package."
         }
     }
+
+    Remove-InstallerFilesFromPath -Root $ClassRoot
 
     # -------------------------------------------------------------------------
     # Check dependencies before Zephyr installation
@@ -913,10 +989,10 @@ try {
     Write-Info "Zephyr source version verified as $ExpectedZephyrTag"
 
     # -------------------------------------------------------------------------
-    # Copy labs into zephyrproject\apps
+    # Copy Labs\lab0..lab3 into zephyrproject\apps
     # -------------------------------------------------------------------------
 
-    Write-Section "Copying lab folders into zephyrproject\apps"
+    Write-Section "Copying Labs\lab0..lab3 into zephyrproject\apps"
 
     $labs = @("lab0", "lab1", "lab2", "lab3")
 
@@ -925,7 +1001,7 @@ try {
         $labDestination = Join-Path $AppsRoot $lab
 
         if ($null -eq $labSource) {
-            Add-InstallerError "Required lab folder '$lab' was not found in the installer package."
+            Add-InstallerError "Required lab folder '$lab' was not found. Expected it under the installer package Labs folder."
             throw "Required lab folder '$lab' was not found."
         }
 
@@ -939,16 +1015,16 @@ try {
     }
 
     # -------------------------------------------------------------------------
-    # Copy led module into zephyrproject\modules
+    # Copy Labs\led module into zephyrproject\modules
     # -------------------------------------------------------------------------
 
-    Write-Section "Copying led module into zephyrproject\modules"
+    Write-Section "Copying Labs\led module into zephyrproject\modules"
 
     $ledSource = Find-SourceFolder -FolderName "led"
     $ledDestination = Join-Path $ModulesRoot "led"
 
     if ($null -eq $ledSource) {
-        Add-InstallerError "Required led module folder was not found in the installer package."
+        Add-InstallerError "Required led module folder was not found. Expected it under the installer package Labs folder."
         throw "Required led module folder was not found."
     }
 
@@ -959,6 +1035,32 @@ try {
 
     Copy-WithRobocopy -Source $ledSource -Destination $ledDestination
     Write-Info "Installed led module to $ledDestination"
+
+    # -------------------------------------------------------------------------
+    # Copy VS Code launch.json into zephyrproject\.vscode
+    # -------------------------------------------------------------------------
+
+    Write-Section "Copying VS Code launch.json into zephyrproject\.vscode"
+
+    $LaunchJsonSource = Find-SourceFile -RelativePaths @( 
+        ".vscode\launch.json",
+        "Labs\.vscode\launch.json",
+        "ClassMaterial\.vscode\launch.json",
+        "ClassMaterial\Labs\.vscode\launch.json"
+    )
+
+    if ($null -eq $LaunchJsonSource) {
+        Add-InstallerError "Required .vscode\launch.json file was not found in the installer package."
+        throw "Required .vscode\launch.json file was not found."
+    }
+
+    $VSCodeDestinationRoot = Join-Path $ZephyrProjectRoot ".vscode"
+    $LaunchJsonDestination = Join-Path $VSCodeDestinationRoot "launch.json"
+
+    New-Item -ItemType Directory -Path $VSCodeDestinationRoot -Force | Out-Null
+    Copy-Item $LaunchJsonSource $LaunchJsonDestination -Force
+
+    Write-Info "Installed launch.json to $LaunchJsonDestination"
 
     # -------------------------------------------------------------------------
     # Final success message
@@ -975,6 +1077,7 @@ try {
     Write-Host "  Virtual env    : $VenvRoot"
     Write-Host "  Apps folder    : $AppsRoot"
     Write-Host "  LED module     : $ledDestination"
+    Write-Host "  VS Code launch : $LaunchJsonDestination"
     Write-Host ""
     Write-Host "Logs:"
     Write-Host "  PowerShell log : $script:ResolvedPowerShellLogPath"
