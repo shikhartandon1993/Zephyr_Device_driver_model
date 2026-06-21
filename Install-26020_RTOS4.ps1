@@ -603,22 +603,45 @@ function Test-RequiredDependencies {
         Add-InstallerError "OpenOCD version could not be checked because 'openocd' was not found in PATH. Required version: $ExpectedOpenOCDVersion."
     }
     else {
+        Write-Info "OpenOCD command found: $($openocdCmd.Source)"
+
+        # Some OpenOCD builds, including Sysprogs, print the version banner on
+        # stderr. With `$ErrorActionPreference = "Stop"`, PowerShell can treat
+        # that stderr text as a failure even when OpenOCD is working correctly.
+        # Temporarily relax ErrorActionPreference and check the captured text
+        # ourselves instead of letting PowerShell turn the banner into an error.
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+
         try {
-            Write-Info "OpenOCD command found: $($openocdCmd.Source)"
-
-            $openocdVersionOutput = openocd --version 2>&1
-
-            Write-Info "Detected OpenOCD output:"
-            $openocdVersionOutput | ForEach-Object {
-                Write-Host "       $_"
-            }
-
-            if (($openocdVersionOutput -join "`n") -notmatch [regex]::Escape($ExpectedOpenOCDVersion)) {
-                Add-InstallerError "Wrong OpenOCD version. Required: $ExpectedOpenOCDVersion. Detected output: $(($openocdVersionOutput | Out-String).Trim())"
-            }
+            $openocdVersionOutput = & $openocdCmd.Source --version 2>&1
+            $openocdExitCode = $LASTEXITCODE
         }
         catch {
-            Add-InstallerError "OpenOCD was found, but running 'openocd --version' failed. Required version: $ExpectedOpenOCDVersion. Error: $($_.Exception.Message)"
+            $openocdVersionOutput = @($_.Exception.Message)
+            $openocdExitCode = 1
+        }
+        finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
+
+        $openocdVersionText = (($openocdVersionOutput | ForEach-Object { $_.ToString() }) -join "`n").Trim()
+
+        Write-Info "Detected OpenOCD output:"
+        if ([string]::IsNullOrWhiteSpace($openocdVersionText)) {
+            Write-Host "       <no output>"
+        }
+        else {
+            $openocdVersionText -split "`r?`n" | ForEach-Object {
+                Write-Host "       $_"
+            }
+        }
+
+        if ($openocdVersionText -notmatch [regex]::Escape($ExpectedOpenOCDVersion)) {
+            Add-InstallerError "Wrong OpenOCD version. Required: $ExpectedOpenOCDVersion. Detected output: $openocdVersionText"
+        }
+        elseif ($null -ne $openocdExitCode -and $openocdExitCode -ne 0) {
+            Add-InstallerError "OpenOCD version text contains $ExpectedOpenOCDVersion, but 'openocd --version' returned exit code $openocdExitCode. Output: $openocdVersionText"
         }
     }
 
