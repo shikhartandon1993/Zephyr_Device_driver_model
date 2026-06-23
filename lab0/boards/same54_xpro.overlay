@@ -1,0 +1,10 @@
+/ {
+        aliases {
+        button0 = &button0;
+    };
+};
+
+&button0 {
+    status = "okay";
+};
+

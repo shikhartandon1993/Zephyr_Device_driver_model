@@ -1,0 +1,19 @@
+description: HTTP temperature service driver
+compatible: "mycompany,my-http-temp"
+properties:
+  port:
+    type: int
+    required: true
+
+  concurrent:
+    type: int
+    default: 1
+
+  backlog:
+    type: int
+    default: 10
+
+  temp-sensor:
+    type: phandle
+    required: true
+    description: Phandle to the mycompany,my-temp-sensor node

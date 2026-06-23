@@ -1,0 +1,1 @@
+myvendor	My Custom Vendor

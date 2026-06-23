@@ -1,0 +1,5 @@
+config MY_LED
+    bool "My LED Driver"
+    default y
+    help
+      Enable support for the custom memory-mapped LED driver on SAME54.
