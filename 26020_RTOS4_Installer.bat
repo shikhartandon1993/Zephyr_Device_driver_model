@@ -542,6 +542,9 @@ if not errorlevel 1 goto :SDK_FOUND_OK
 call :CheckSDKCandidate "C:\Tools\zephyr-sdk-0.17.4"
 if not errorlevel 1 goto :SDK_FOUND_OK
 
+call :CheckSDKCandidate "C:\Users\Masters\zephyr-sdk-0.17.4"
+if not errorlevel 1 goto :SDK_FOUND_OK
+
 call :CheckSDKCandidate "C:\Program Files\Zephyr SDK\0.17.4"
 if not errorlevel 1 goto :SDK_FOUND_OK
 
@@ -551,6 +554,7 @@ echo   ZEPHYR_SDK_INSTALL_DIR if set
 echo   %USERPROFILE%\zephyr-sdk-0.17.4
 echo   C:\zephyr-sdk-0.17.4
 echo   C:\Tools\zephyr-sdk-0.17.4
+echo   C:\Users\Masters\zephyr-sdk-0.17.4
 echo   C:\Program Files\Zephyr SDK\0.17.4
 echo.
 echo If Zephyr SDK 0.17.4 is installed somewhere else, manually verify it or set:
