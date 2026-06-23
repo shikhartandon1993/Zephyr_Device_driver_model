@@ -4,7 +4,6 @@ message(STATUS "DEBUG: CMAKE_SOURCE_DIR is: ${CMAKE_SOURCE_DIR}")
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
-#name here doesnt matter
 project(my_led)
 
 target_sources(app PRIVATE src/main.c)

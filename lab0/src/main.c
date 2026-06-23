@@ -1,8 +1,8 @@
-#include <zephyr/kernel.h> /*for k_msleep()*/
-#include <zephyr/device.h> /*for struct device, DEVICE_DT_GET()*/
-#include <zephyr/devicetree.h> /* for DT_NODELABEL() */
-#include <zephyr/logging/log.h> /*For logging*/
-#include <zephyr/drivers/gpio.h> /*for button at gpio*/
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/drivers/gpio.h>
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 #define STACK_SIZE 1024
@@ -20,7 +20,7 @@ void entry_fn(void *press,void *arg2,void *arg3)
         if((gpio_pin_get_dt((const struct gpio_dt_spec*)press) > 0) && (count == 0))
         {
             pressed = true;
-            //dont let it goto if statement again for next 100us
+            //dont let it goto if statement again for next 100ms
             while(count < 10)
             {
                 count++;
@@ -28,27 +28,13 @@ void entry_fn(void *press,void *arg2,void *arg3)
                 {
                     count = 0;
                 }
-                k_usleep(10);
+                k_msleep(10);
             }
             count = 0;
         }
         k_msleep(1);
     }
 }
-
-// void callback_fn(const struct device *port,
-// 					struct gpio_callback *cb,
-// 					gpio_port_pins_t pins)
-// {
-//     pressed = true;
-// }
-
-// struct gpio_callback gpio_callback_var =
-// {
-//     .handler = callback_fn,
-//     .pin_mask = 1 << 31
-// };
-
 
 int main(void)
 {   
@@ -69,9 +55,6 @@ int main(void)
         LOG_INF("Button failed to be set as input");
     }
 
-    // ret = gpio_pin_interrupt_configure_dt(&press,GPIO_INT_LEVEL_LOW);
-    // LOG_INF("ret = %d",ret);
-    // gpio_add_callback_dt(&press,&gpio_callback_var);
     k_tid_t t1 = k_thread_create(&new_thread,new_stack,K_THREAD_STACK_SIZEOF(new_stack),entry_fn,(void*)&press,NULL,NULL,2,K_USER,K_FOREVER);
     k_thread_start(t1);
     

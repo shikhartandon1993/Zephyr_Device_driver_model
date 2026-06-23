@@ -1,9 +1,0 @@
-/ {
-    my_led0: my_led@41008000 {
-        compatible = "myvendor,mygpio-led";
-        reg = <0x41008000 0x2000>;
-        port = <2>;
-        pin = <18>;
-        status = "okay";
-    };
-};

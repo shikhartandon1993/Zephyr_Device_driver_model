@@ -5,7 +5,6 @@ set(ZEPHYR_EXTRA_MODULES "${CMAKE_SOURCE_DIR}/../../modules/led")
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
-#name here doesnt matter
 project(my_led)
 
 target_sources(app PRIVATE src/main.c)

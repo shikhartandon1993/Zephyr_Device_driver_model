@@ -15,7 +15,7 @@
   };
 };
 
-/* Enable SERCOM3 as I2C (matches your working app) */
+/* Enable SERCOM3 as I2C */
 &sercom3 {
   status = "okay";
   compatible = "atmel,sam0-i2c";

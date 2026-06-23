@@ -11,6 +11,6 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 #declares project name, enables languages
 project(my_led)
 
-#zephyr defines library target "app",
+#zephyr defines static library target "app",
 #out-of-tree main.c code becomes a "Zephyr" app
 target_sources(app PRIVATE src/main.c)
