@@ -16,7 +16,7 @@
 ::       C:\Install\26020_RTOS4\.vscode
 ::       C:\Install\26020_RTOS4\26020_RTOS4_Installer.bat
 ::       C:\Install\26020_RTOS4\26020_restore.bat
-::       C:\Install\26020_RTOS4\README.md
+::       C:\Install\26020_RTOS4\README_26020_RTOS4_Installer.md
 ::
 :: This script does NOT delete C:\Install\26020_RTOS4.
 :: It installs Zephyr into C:\Masters\26020_RTOS4\zephyrproject,
@@ -24,7 +24,7 @@
 :: copies .vscode into zephyrproject\.vscode,
 :: and copies Solutions, .vscode, and this installer BAT into
 :: C:\Backup\26020_RTOS4\Solutions. It also copies the installer BAT
-:: 26020_restore.bat, and README.md into
+:: 26020_restore.bat, and README_26020_RTOS4_Installer.md into
 :: C:\Backup\26020_RTOS4.
 :: If restore.bat or 26020_restore.bat was copied into C:\Masters\26020_RTOS4
 :: by restore flow, this script removes it from C:\Masters\26020_RTOS4.
@@ -72,8 +72,8 @@ set "SOLUTIONS_VSCODE_DST=%SOLUTIONS_DST%\.vscode"
 set "SOLUTIONS_SCRIPT_DST=%SOLUTIONS_DST%\%~nx0"
 set "BACKUP_INSTALLER_DST=%BACKUP_ROOT%\%~nx0"
 set "BACKUP_RESTORE_DST=%BACKUP_ROOT%\26020_restore.bat"
-set "README_SRC=%SRC_FOLDER%\README.md"
-set "README_BACKUP_DST=%BACKUP_ROOT%\README.md"
+set "README_SRC=%SRC_FOLDER%\README_26020_RTOS4_Installer.md"
+set "README_BACKUP_DST=%BACKUP_ROOT%\README_26020_RTOS4_Installer.md"
 set "RESTORE_BAT_IN_MASTER=%CLASS_ROOT%\restore.bat"
 set "RESTORE_26020_BAT_IN_MASTER=%CLASS_ROOT%\26020_restore.bat"
 set "DEPENDENCY_WARNINGS=%TEMP%\26020_RTOS4_dependency_warnings.txt"
@@ -415,11 +415,6 @@ cd /d "%WORKSPACE%"
 west list
 
 echo.
-echo ============================================================
-echo FINAL STATUS: SUCCESSFUL
-echo Zephyr v4.3.0/source setup and required module update completed.
-echo Lab files and required backup files were verified in the expected locations.
-echo ============================================================
 echo Workspace is ready here:
 echo %WORKSPACE%
 echo.
@@ -465,6 +460,12 @@ echo If a future lab needs another module, run:
 echo   cd /d %WORKSPACE%
 echo   .venv\Scripts\activate.bat
 echo   west update -n -o=--depth=1 MODULE_NAME
+echo.
+echo ============================================================
+echo FINAL STATUS: SUCCESSFUL
+echo Zephyr v4.3.0/source setup and required module update completed.
+echo Lab files and required backup files were verified in the expected locations.
+echo ============================================================
 echo.
 pause
 exit /b 0
@@ -673,10 +674,6 @@ exit /b 0
 
 :FAILED
 echo.
-echo ============================================================
-echo FINAL STATUS: FAILED
-echo Zephyr v4.3.0/module installation or class file copy/verification did not complete successfully.
-echo ============================================================
 echo Do not delete C:\Install\%CLASS_NAME%.
 echo Do not delete the workspace immediately. Many Git downloads can resume.
 echo Failed workspace:
@@ -686,6 +683,11 @@ echo Common recovery:
 echo   cd /d %WORKSPACE%
 echo   .venv\Scripts\activate.bat
 echo   west update -n -o=--depth=1 %REQUIRED_MODULES%
+echo.
+echo ============================================================
+echo FINAL STATUS: FAILED
+echo Zephyr v4.3.0/module installation or class file copy/verification did not complete successfully.
+echo ============================================================
 echo.
 pause
 exit /b 1
