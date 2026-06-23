@@ -256,23 +256,22 @@ If the script shows:
 FINAL STATUS: FAILED
 ```
 
-or stops with an error, do **not** delete this folder:
+or stops with an error, use this simple recovery path:
+
+1. Do **not** delete this folder:
 
 ```cmd
 C:\Install\26020_RTOS4
 ```
 
-Also, do not immediately delete the Zephyr workspace. Many Git downloads can resume from an incomplete workspace.
+2. Kill any stuck Git, west, or Python processes using the commands in section 8.1.
+3. Then go to section 9 and follow the manual Zephyr v4.3.0 installation steps **from the beginning**.
+4. After Zephyr is manually installed, go to section 10 and manually copy the class files.
+5. Use section 11 for the final manual check.
 
-Failed or partial workspace:
+### 8.1 Stop stuck Git, west, or Python processes
 
-```cmd
-C:\Masters\26020_RTOS4\zephyrproject
-```
-
-### 8.1 Stop stuck Git or west processes
-
-Open Command Prompt and run:
+Open **Command Prompt** and run:
 
 ```cmd
 taskkill /F /IM git.exe
@@ -283,6 +282,20 @@ taskkill /F /IM west.exe
 ```
 
 It is okay if some commands say the process was not found.
+
+After running the commands above, delete only this failed workspace
+
+Delete the below folder:
+```cmd
+C:\Masters\26020_RTOS4\zephyrproject
+```
+and then start section 9.
+
+Do **not** delete:
+
+```cmd
+C:\Install\26020_RTOS4
+```
 
 ---
 
