@@ -1,5 +1,5 @@
 :: 26020_RTOS4_Installer
-:: v11: flat layout + dependency warnings + final status + backup README
+:: v12: flat layout + dependency warnings + final status + backup README + open README after finish
 :: MASTERs class installer for 26020_RTOS4.
 ::
 :: Event layout assumption:
@@ -91,8 +91,6 @@ if not exist "%SRC_FOLDER%\" (
     echo   C:\Install\%CLASS_NAME%
     goto :FAILED
 )
-
-if exist "%SRC_FOLDER%\README.txt" start "" notepad.exe "%SRC_FOLDER%\README.txt"
 
 if not exist "%LABS_SRC%\lab0\" goto :BAD_SOURCE
 if not exist "%LABS_SRC%\lab1\" goto :BAD_SOURCE
@@ -467,6 +465,7 @@ echo Zephyr v4.3.0/source setup and required module update completed.
 echo Lab files and required backup files were verified in the expected locations.
 echo ============================================================
 echo.
+call :OpenReadmeAfterFinish
 pause
 exit /b 0
 
@@ -490,6 +489,15 @@ echo   %VSCODE_SRC%
 echo.
 echo Required layout now includes:
 echo   %SRC_FOLDER%\.vscode
+goto :FAILED
+
+:BAD_README
+echo.
+echo ERROR: Expected installer README was not found:
+echo   %README_SRC%
+echo.
+echo Required layout now includes:
+echo   %SRC_FOLDER%\README_26020_RTOS4_Installer.md
 goto :FAILED
 
 :WarnTool
@@ -676,6 +684,25 @@ if errorlevel 1 (
 )
 exit /b 0
 
+:OpenReadmeAfterFinish
+echo.
+echo Opening installer README after final status:
+if exist "%README_SRC%" (
+    echo   %README_SRC%
+    start "" notepad.exe "%README_SRC%"
+    exit /b 0
+)
+if exist "%README_BACKUP_DST%" (
+    echo   %README_BACKUP_DST%
+    start "" notepad.exe "%README_BACKUP_DST%"
+    exit /b 0
+)
+echo WARNING: Installer README was not found and could not be opened.
+echo Checked:
+echo   %README_SRC%
+echo   %README_BACKUP_DST%
+exit /b 0
+
 :FAILED
 echo.
 echo Do not delete C:\Install\%CLASS_NAME%.
@@ -693,5 +720,6 @@ echo FINAL STATUS: FAILED
 echo Zephyr v4.3.0/module installation or class file copy/verification did not complete successfully.
 echo ============================================================
 echo.
+call :OpenReadmeAfterFinish
 pause
 exit /b 1

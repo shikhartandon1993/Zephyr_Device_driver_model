@@ -1,5 +1,7 @@
 # 26020_RTOS4 Installer README
 
+> **Important:** Use this README only after `26020_RTOS4_Installer.bat` finishes and shows either `FINAL STATUS: SUCCESSFUL` or `FINAL STATUS: FAILED`. The installer opens this README at the end so you can check the final result and follow the correct next steps.
+
 This README is for the person running the `26020_RTOS4_Installer.bat` script for the MASTERs class **26020_RTOS4**.
 
 You do **not** need Zephyr knowledge to run this installer. The script installs Zephyr v4.3.0, downloads the required Zephyr modules for the labs, and copies the class files into the expected folders.
@@ -265,7 +267,7 @@ C:\Install\26020_RTOS4
 ```
 
 2. Kill any stuck Git, west, or Python processes using the commands in section 8.1.
-3. Then go to section 9 and follow the manual Zephyr v4.3.0 installation steps **from the beginning**.
+3. Then go to section 9 and follow the manual Zephyr v4.3.0 installation steps.
 4. After Zephyr is manually installed, go to section 10 and manually copy the class files.
 5. Use section 11 for the final manual check.
 
