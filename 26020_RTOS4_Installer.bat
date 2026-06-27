@@ -37,7 +37,13 @@ REM  These are the event/class-specific lines to edit if needed.
 REM ============================================================
 set "CLASS_NUMBER=26020"
 set "CLASS_NAME=26020_RTOS4"
-set "SRC_FOLDER=C:\Install\26020_RTOS4"
+
+REM Use the folder where this installer BAT is located as the source folder.
+REM This allows the installer to be run from any current working directory.
+set "SRC_FOLDER=%~dp0"
+
+REM Remove trailing backslash for cleaner path joining.
+if "%SRC_FOLDER:~-1%"=="\" set "SRC_FOLDER=%SRC_FOLDER:~0,-1%"
 
 REM ============================================================
 REM  Zephyr v4.3.0 Minimal CMD Installer + Lab Copy
@@ -87,8 +93,8 @@ if not exist "%SRC_FOLDER%\" (
     echo ERROR: Source class folder not found:
     echo   %SRC_FOLDER%
     echo.
-    echo For the MASTERs event, copy the full class package to:
-    echo   C:\Install\%CLASS_NAME%
+    echo The installer now uses the folder where this BAT file is located.
+    echo Make sure the full class package is in the same folder as this installer.
     goto :FAILED
 )
 
