@@ -13,11 +13,11 @@
             "type": "cortex-debug",
             "runToEntryPoint": "main",
             "servertype": "openocd",
-            "serverpath": "C:/Tools/OpenOCD-20250710/OpenOCD-20250710-0.12.0/bin/openocd",
-            "gdbPath": "C:/Users/shikh/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "serverpath": "C:/Masters/OpenOCD/bin/openocd.exe",
+            "gdbPath": "C:/Users/Masters/zephyr-sdk-0.17.4/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
             "configFiles": [
-        "C:/Tools/OpenOCD-20250710/OpenOCD-20250710-0.12.0/share/openocd/scripts/interface/cmsis-dap.cfg",
-        "C:/Tools/OpenOCD-20250710/OpenOCD-20250710-0.12.0/share/openocd/scripts/target/atsame5x.cfg"
+        "C:/Masters/OpenOCD/share/openocd/scripts/interface/cmsis-dap.cfg",
+        "C:/Masters/OpenOCD/share/openocd/scripts/target/atsame5x.cfg"
     ]
         }
     ]
